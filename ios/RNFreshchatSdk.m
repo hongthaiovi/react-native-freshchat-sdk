@@ -4,7 +4,7 @@
 //
 
 #import "RNFreshchatSdk.h"
-#import "FreshchatSDK/FreshchatSDK.h"
+//#import "FreshchatSDK/FreshchatSDK.h"
 #import <React/RCTLog.h>
 #import <React/RCTConvert.h>
 #import <AssetsLibrary/AssetsLibrary.h>
