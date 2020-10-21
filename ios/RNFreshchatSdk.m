@@ -119,6 +119,9 @@ RCT_EXPORT_METHOD(showConversations)
 {
     UIViewController *visibleVC = [[[UIApplication sharedApplication] keyWindow] rootViewController];
     [[Freshchat sharedInstance] showConversations:visibleVC];
+    UIView *subview = [[UIView alloc] initWithFrame:CGRectMake(0, visibleVC.view.frame.size.height - 30, visibleVC.view.frame.size.width, 30)];
+    [subview setBackgroundColor:[UIColor whiteColor]];
+    [visibleVC.modalViewController.view addSubview: subview];
 }
 
 RCT_EXPORT_METHOD(showConversationsWithOptions:(NSDictionary *)args)
