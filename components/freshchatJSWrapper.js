@@ -39,6 +39,10 @@ registerForOpeningLink = function (register) {
     RNFreshchatSdk.registerForOpeningLink(register);
 };
 
+registerForLocaleChangedByWebview = function (register) {
+    RNFreshchatSdk.registerForOpeningLink(register);
+};
+
 registerForUserActions = function (register) {
     RNFreshchatSdk.registerForUserActions(register);
 };
@@ -61,7 +65,10 @@ enableNativeListenerForType = function (type, enable) {
         case RNFreshchatSdk.ACTION_OPEN_LINKS:
             registerForOpeningLink(enable);
             break;
-        case RNFreshchatSdk.ACTION_USER_ACTIONS:
+        case RNFreshchatSdk.ACTION_LOCALE_CHANGED_BY_WEBVIEW:
+            registerForLocaleChangedByWebview(enable);
+            break;
+        case RNFreshchatSdk.ACTION_FRESHCHAT_EVENTS:
             registerForUserActions(enable);
             break;
         case RNFreshchatSdk.FRESHCHAT_ACTION_NOTIFICATION_CLICK_LISTENER:
@@ -73,10 +80,11 @@ enableNativeListenerForType = function (type, enable) {
 eventsList = function(key) {
     let events = {
         EVENT_EXTERNAL_LINK_CLICKED        : RNFreshchatSdk.ACTION_OPEN_LINKS,
+        EVENT_LOCALE_CHANGED_BY_WEBVIEW    : RNFreshchatSdk.ACTION_LOCALE_CHANGED_BY_WEBVIEW,
         EVENT_UNREAD_MESSAGE_COUNT_CHANGED : RNFreshchatSdk.ACTION_UNREAD_MESSAGE_COUNT_CHANGED,
         EVENT_USER_RESTORE_ID_GENERATED    : RNFreshchatSdk.ACTION_USER_RESTORE_ID_GENERATED,
         EVENT_USER_INTERACTED              : RNFreshchatSdk.ACTION_USER_INTERACTION,
-        FRESHCHAT_EVENTS                   : RNFreshchatSdk.ACTION_USER_ACTIONS,
+        FRESHCHAT_EVENTS                   : RNFreshchatSdk.ACTION_FRESHCHAT_EVENTS,
         FRESHCHAT_NOTIFICATION_CLICKED     : RNFreshchatSdk.FRESHCHAT_ACTION_NOTIFICATION_CLICK_LISTENER
     };
     return events[key];
@@ -85,6 +93,7 @@ eventsList = function(key) {
 module.exports = {
 
     EVENT_EXTERNAL_LINK_CLICKED        : eventsList('EVENT_EXTERNAL_LINK_CLICKED'),
+    EVENT_ANDROID_LOCALE_CHANGED_BY_WEBVIEW    : eventsList('EVENT_LOCALE_CHANGED_BY_WEBVIEW'),
     EVENT_UNREAD_MESSAGE_COUNT_CHANGED : eventsList('EVENT_UNREAD_MESSAGE_COUNT_CHANGED'),
     EVENT_USER_RESTORE_ID_GENERATED    : eventsList('EVENT_USER_RESTORE_ID_GENERATED'),
     EVENT_USER_INTERACTED              : eventsList('EVENT_USER_INTERACTED'),
@@ -219,6 +228,14 @@ module.exports = {
         RNFreshchatSdk.openFreshchatDeeplink(link);
     },
 
+    trackEvent: function (name, properties) {
+        RNFreshchatSdk.trackEvent(name, properties);
+    },
+
+    notifyAppLocaleChange: function () {
+        RNFreshchatSdk.notifyAppLocaleChange();
+    },
+
     addEventListener: function (type, handler) {
         listener = emitter.addListener(type, handler);
 
@@ -265,15 +282,16 @@ module.exports = {
     },
 
     transformPushNotificationIOSPayloadToNativePayload: function (reactPayload) {
-        const nativePayload = reactPayload._data;
+        var nativePayload = reactPayload._data;
 
-        nativePayload.aps = {};
-        nativePayload.aps.alert = reactPayload._alert;
-        nativePayload.aps.badge = reactPayload._badgeCount;
-        // nativePayload.aps.mutable-content = 1;
-        nativePayload.aps.sound = "default";
-
-        return nativePayload;
+        var load = {
+          "alert": reactPayload._alert,
+          "badge": reactPayload._badgeCount,
+          "sound" : "default"
+        };
+        var apsPayload = {"aps":load};
+        var payload = Object.assign({}, apsPayload, nativePayload);
+        return payload;
     },
 
     // isAppActiveWhenReceivingNotification: function (nativePayload) {

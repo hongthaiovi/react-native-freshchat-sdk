@@ -1,6 +1,6 @@
 package com.freshchat.consumer.sdk.react;
 
-import androidx.annotation.NonNull;
+import android.support.annotation.NonNull;
 
 public class StringUtils {
 

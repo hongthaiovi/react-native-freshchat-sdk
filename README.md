@@ -2,27 +2,56 @@
 
 # **React Native SDK Integration**
 
-## **Download React Native Freshchat SDK:** 
+**Note:**  
+1. Freshchat React Native SDK helps intergrating Freshchat in your React native mobile applications.
+2. RN v0.60 and above will be supported from Freshchat SDK v2.0.0.
+3. Please refer the change logs before updating to newer version of the SDK.
 
-1. Our node package name is ‘react-native-freshchat-sdk’.
+## **Integrate React Native Freshchat SDK:** 
+
+1. Freshchat node package name is ‘react-native-freshchat-sdk’.
 2. In your react native project’s Package.json file, under dependencies add
-    ”react-native-freshchat-sdk”: “{{latest-version}}”
-3. After installing sdk, run `react-native link` command
-4. For latest SDK version please refer the following link: 
-    [https://www.npmjs.com/package/react-native-freshchat-sdk](https://www.npmjs.com/package/react-native-freshchat-sdk)
-
-    Note: Please refer the change logs before updating to newer version of the SDK.
+”react-native-freshchat-sdk”: “{{latest-version}}”
+3. For latest SDK version please refer the following link: 
+[https://www.npmjs.com/package/react-native-freshchat-sdk](https://www.npmjs.com/package/react-native-freshchat-sdk)
 
 ## **iOS Setup:**
 
-1. Go to ios folder of your react native project.
-2. Add an entry for FreshchatSDK as shown below in Podfile,
-     ```
-    target 'ProjectName' do
-    pod 'FreshchatSDK', :path=> '../node_modules/react-native-freshchat-sdk/ios/FreshchatSDK.podspec'
-    end
-    ```
-3. Run pod install from ios directory
+| RN Version | Freshchat Version | Steps  |
+|--|--|--|
+| 0.60+ | 2.0.0+ |Run below command to autolink the SDK <br>```cd ios``` <br>```pod install```|
+| < 0.60 | 2.0.0+ | 1. Make sure Podfile exists inside your ios project directory. If not, initialise pod inside your ios project directory and add the React dependency in your podfile. React dependencies are available below this table.<br>2. Then link the React native Freshchat SDK using the following command,<br>```react-native link react-native-freshchat-sdk```  |
+| < 0.60 | < 2.0.0 |1. Link the React native Freshchat SDK using the following command,<br>```react-native link react-native-freshchat-sdk```<br>2. Go to ios folder of your react native project.<br>3. Add an entry for FreshchatSDK as shown below in Podfile,<br>```target 'ProjectName' do```<br>```pod 'FreshchatSDK', :path=> '../node_modules/react-native-freshchat-sdk/ios/FreshchatSDK.podspec' ```<br> ```end ```<br>4. Run pod install from ios directory|
+| 0.60+ | < 2.0.0 | Only Freshchat SDK 2.0.0+ will be compatible with RN v0.60+. |
+
+##### React dependencies when RN < 0.60 & Freshchat SDK 2.0.0+
+```
+# React Native requirements
+pod 'React', :path => '../node_modules/react-native', :subspecs => [
+'Core',
+'CxxBridge', # Include this for RN >= 0.47
+'DevSupport', # Include this to enable In-App Devmenu if RN >= 0.43
+'RCTText',
+'RCTNetwork',
+'RCTWebSocket', # Needed for debugging
+'RCTAnimation', # Needed for FlatList and animations running on native UI thread
+# Add any other subspecs you want to use in your project
+]
+# Explicitly include Yoga if you are using RN >= 0.42.0
+pod 'yoga', :path => '../node_modules/react-native/ReactCommon/yoga'
+pod 'DoubleConversion', :podspec => '../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec'
+pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
+pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
+```
+
+### Migrating an existing freshchat integration to Freshchat SDK 2.0.0+
+1. Unlink React native Freshchat SDK from your react project using the following command.
+```react-native unlink react-native-freshchat-sdk```
+
+2. Remove the following line from Podfile inside your iOS project.
+```pod 'FreshchatSDK', :path=> '../node_modules/react-native-freshchat-sdk/ios/FreshchatSDK.podspec'```
+
+3. Refer above tabular column and choose steps as per your requirement.
 
 ## **Android Setup:**
 
@@ -35,6 +64,8 @@
         }
     }
     ```
+2. If you are using RN version < 0.60, please run below command.
+```react-native link react-native-freshchat-sdk```
 ## **Steps to integrate Freshchat React Native SDK:**
 
 ### **1. Initialisation:**
@@ -51,7 +82,7 @@ Freshchat portal under Settings -> Mobile SDK.
 ### **2. Set User Properties:**
 
 **setUser** API is used to update user details. You can use the below snippet to update user details.
-  
+
 ```
 import { FreshchatUser } from 'react-native-freshchat-sdk';
 var freshchatUser = new FreshchatUser();
@@ -275,6 +306,22 @@ const eventHandler = (actionData) => {
 
 ### **2. Supported Events:**
 
+#### **Track detailed Freshchat SDK actions:**
+
+It gives a detailed description about the action happened inside Freshchat module.
+
+```
+Freshchat.addEventListener(
+    FRESHCHAT_EVENTS,
+    (actionData) => {
+        console.log("Freshchat Detailed action event triggered");
+        console.log('Event - ', actionData.event_name);
+        console.log('Event Properties - ', actionData.properties);
+    }
+);
+```
+More info [here](https://support.freshchat.com/support/solutions/articles/50000000057-how-to-track-user-actions-happening-inside-freshchat-sdk)
+
 #### **Unread message count listener:**
 
 When user's unread message count changes, this event will be triggered. When this is triggered you can call getUnreadCountAsync API to get the number of unread messages.
@@ -385,11 +432,12 @@ We have identified some potential areas where problem happens. So we consolidate
 4. Push notification capability should be enabled in your Xcode project.
 5. Make sure you gave permission to push notification for your application. If not go to settings -> under your application, enable push notification.
 6. Confirm you are passing on device token to the Freshchat using the following method,
+7. Under Appdelegate class make sure you have either UNUserNotificationCenter delegate methods or [UIApplicationDelegate application:didReceiveRemoteNotification:fetchCompletionHandler:] is implemented. 
+And if UNUserNotificationCenter framework is being used, make sure delegate has been set for that.
     ```
     Freshchat.setPushRegistrationToken(device.pushToken);
     ```
-7. Under Appdelegate class make sure you have either UNUserNotificationCenter delegate methods or [UIApplicationDelegate application:didReceiveRemoteNotification:fetchCompletionHandler:] is implemented. 
-    And if UNUserNotificationCenter framework is being used, make sure delegate has been set for that.
+
 8. Add respective react bridging codes on the push notification delegate methods.
 9. Refer the codes here for plugin implementation, confirm you have implemented all the recommendations.
 10. If you have Notification extension in your app, make sure its not blocking the notification.

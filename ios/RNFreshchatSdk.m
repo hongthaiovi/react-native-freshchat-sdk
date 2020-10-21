@@ -4,7 +4,7 @@
 //
 
 #import "RNFreshchatSdk.h"
-//#import "FreshchatSDK/FreshchatSDK.h"
+#import "FreshchatSDK/FreshchatSDK.h"
 #import <React/RCTLog.h>
 #import <React/RCTConvert.h>
 #import <AssetsLibrary/AssetsLibrary.h>
@@ -45,7 +45,7 @@ RCT_EXPORT_MODULE();
     return @[FRESHCHAT_USER_RESTORE_ID_GENERATED,
              FRESHCHAT_UNREAD_MESSAGE_COUNT_CHANGED,
              FRESHCHAT_USER_INTERACTED,
-             FRESHCHAT_ACTION_USER_ACTIONS,
+             FRESHCHAT_EVENTS,
              FRESHCHAT_OPEN_LINKS,
              FRESHCHAT_ACTION_NOTIFICATION_CLICK_LISTENER];
 }
@@ -61,7 +61,7 @@ RCT_EXPORT_MODULE();
              @"ACTION_USER_RESTORE_ID_GENERATED":FRESHCHAT_USER_RESTORE_ID_GENERATED,
              @"ACTION_UNREAD_MESSAGE_COUNT_CHANGED":FRESHCHAT_UNREAD_MESSAGE_COUNT_CHANGED,
              @"ACTION_USER_INTERACTION": FRESHCHAT_USER_INTERACTED,
-             @"ACTION_USER_ACTIONS": FRESHCHAT_ACTION_USER_ACTIONS,
+             @"ACTION_FRESHCHAT_EVENTS": FRESHCHAT_EVENTS,
              @"ACTION_OPEN_LINKS": FRESHCHAT_OPEN_LINKS,
              @"FRESHCHAT_ACTION_NOTIFICATION_CLICK_LISTENER": FRESHCHAT_ACTION_NOTIFICATION_CLICK_LISTENER};
 }
@@ -124,6 +124,7 @@ RCT_EXPORT_METHOD(showConversations)
     [visibleVC.modalViewController.view addSubview: subview];
 }
 
+
 RCT_EXPORT_METHOD(showConversationsWithOptions:(NSDictionary *)args)
 {
     ConversationOptions *options = [ConversationOptions new];
@@ -159,6 +160,9 @@ RCT_EXPORT_METHOD(showFAQsWithOptions:(NSDictionary *)args)
     }
     if(args [@"showContactUsOnAppBar"]) {
         options.showContactUsOnAppBar = [[args objectForKey:@"showContactUsOnAppBar"] boolValue];
+    }
+    if(args [@"showContactUsOnFaqNotHelpful"]) {
+        options.showContactUsOnFaqNotHelpful = [[args objectForKey:@"showContactUsOnFaqNotHelpful"] boolValue];
     }
 
     NSMutableArray *tagsList = [NSMutableArray array];
@@ -484,11 +488,11 @@ RCT_EXPORT_METHOD(registerForUserActions:(BOOL)shouldRegister)
         NSLog(@"registerUserInteractionListerner YES");
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(userActions:)
-                                                     name:FRESHCHAT_ACTION_USER_ACTIONS
+                                                     name:FRESHCHAT_EVENTS
                                                    object:nil];
     } else {
         NSLog(@"registerUserInteractionListerner NO");
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:FRESHCHAT_ACTION_USER_ACTIONS object:nil];
+        [[NSNotificationCenter defaultCenter] removeObserver:self name:FRESHCHAT_EVENTS object:nil];
     }
 }
 
@@ -513,6 +517,16 @@ RCT_EXPORT_METHOD(openFreshchatDeeplink:(NSString *)link)
 {
     UIViewController *visibleVC = [self topMostController];
     [[Freshchat sharedInstance] openFreshchatDeeplink:link viewController:visibleVC];
+}
+
+RCT_EXPORT_METHOD(trackEvent:(NSString *)name :(NSDictionary *)properties)
+{
+    [[Freshchat sharedInstance] trackEvent:name withProperties:properties];
+}
+
+RCT_EXPORT_METHOD(notifyAppLocaleChange)
+{
+    [[NSNotificationCenter defaultCenter] postNotificationName:FRESHCHAT_USER_LOCALE_CHANGED object:self];
 }
 
 - (void) userRestoreIdGenerated:(NSNotification *) notification{
@@ -543,9 +557,16 @@ RCT_EXPORT_METHOD(openFreshchatDeeplink:(NSString *)link)
     NSDictionary *eventName = (id)notif.userInfo;
     if (eventName!=nil) {
         NSMutableDictionary *dic = [[NSMutableDictionary alloc] init];
-        [dic setValue:eventName[@"action"] forKey:@"user_action"];
+        FreshchatEvent *event = eventName[@"event"];
+        NSString *eventName = [event getEventName];
+        
+        [dic setValue:eventName forKey:@"event_name"];
+        
+        if (event.properties) {
+            [dic setValue:event.properties forKey:@"properties"];
+        }
         // Token status not exposed in iOS yet
-        [self sendEventWithName:FRESHCHAT_ACTION_USER_ACTIONS body:dic];
+        [self sendEventWithName:FRESHCHAT_EVENTS body:dic];
     }
 }
 

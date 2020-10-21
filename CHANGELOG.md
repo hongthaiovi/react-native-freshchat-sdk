@@ -1,5 +1,95 @@
 # Freshchat React Native SDK
 
+## 2.6.4 (2020-09-07)
+
+### Bug Fixes
+* Better handling of "&" in iOS messages.
+* Removed search icon when FAQ search is open in Android.
+* Added “Still looking for help? Talk to us” string for FAQ downvote in Android. 
+
+## 2.6.3 (2020-08-07)
+
+### Enhancement
+* Android and iOS performance improvements in rendering messages.
+
+### Bug Fix
+* Android and iOS Fix to honor showContactUsOnFaqNotHelpful config
+
+## 2.6.2 (2020-07-07)
+
+### Enhancement
+* Android performance improvements in rendering messages.
+
+### Bug Fix
+* iOS UI Bug fixes.
+
+
+## 2.6.1 (2020-06-18)
+
+### Enhancement
+* Support for multiline placeholder text in feedback view.
+
+## 2.6.0 (2020-06-15)
+
+### Feature
+* Support to book meetings.
+
+### Enhancement
+* Optimisation for iOS 13.
+
+### Bug Fixes
+* Show agent first name alone instead of full name.
+* Fixed image resize issue in Android.
+* Minor bug fixes in iOS.
+
+## 2.5.0 (2020-05-13)
+
+### Feature
+* Support for messages with Carousel options.
+
+## 2.4.0 (2020-05-04)
+
+### Feature
+* Support for multi choice question with dropdown.
+
+## 2.3.1 (2020-03-17)
+
+### Bug Fix
+* Fixed rendering of newlines in message text.
+
+## 2.3.0 (2020-02-03)
+
+### Feature
+* Add user events from your app to Freshchat Timeline to give your agents context on user's journey and problems.
+
+## 2.2.0 (2019-11-18)
+
+### Enhancement
+* Ability to search through FAQs filtered by tags.
+* Increased CSAT message view maximum height to 4 lines.
+
+## 2.1.1 (2019-10-10)
+
+### Bug Fix
+* Handled iOS 13 push tokens.
+
+## 2.1.0 (2019-9-27)
+
+### Enhancement
+* Added Freshchat events
+* Support for showing proactive reply suggestions
+
+### Breaking Change
+* Freshchat.FRESHCHAT_EVENTS event name variable user_action is changed to event_name.
+
+### Bug Fix
+* Resolved iOS variable name conflict with react-native-navigation library.
+
+## 2.0.0 (2019-7-26)
+
+### Enhancement
+* Comapatible with RN v0.60 and above.
+
 ## 1.1.2 (2019-5-27)
 
 ### Enhancement :
