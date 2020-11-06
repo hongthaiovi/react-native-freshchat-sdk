@@ -1,6 +1,6 @@
 package com.freshchat.consumer.sdk.react;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
